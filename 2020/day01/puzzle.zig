@@ -72,10 +72,10 @@ fn findAnswer2(input: []const u8) !u32 {
 
 test "findAnswer1" {
     const answer1 = try findAnswer1(@embedFile("input.txt"));
-    std.testing.expectEqual(answer1, 1007331);
+    std.testing.expectEqual(@as(u32, 1007331), answer1);
 }
 
 test "findAnswer2" {
     const answer2 = try findAnswer2(@embedFile("input.txt"));
-    std.testing.expectEqual(answer2, 48914340);
+    std.testing.expectEqual(@as(u32, 48914340), answer2);
 }
