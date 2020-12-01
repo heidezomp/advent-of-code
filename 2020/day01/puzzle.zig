@@ -1,7 +1,7 @@
 const std = @import("std");
 
 pub fn main() !void {
-    const input = @embedFile("input1.txt");
+    const input = @embedFile("input.txt");
 
     var lines = std.mem.tokenize(input, "\n");
     const answer = outer: while (lines.next()) |line1| {
