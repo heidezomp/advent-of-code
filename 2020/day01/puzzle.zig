@@ -4,11 +4,13 @@ pub fn main() !void {
     const input = @embedFile("input.txt");
     const sum = 2020;
 
+    const stdout = std.io.getStdOut().writer();
+
     const answer1 = try findAnswer1(input, sum);
-    try std.io.getStdOut().writer().print("Answer 1: {}\n", .{answer1});
+    try stdout.print("Answer 1: {}\n", .{answer1});
 
     const answer2 = try findAnswer2(input, sum);
-    try std.io.getStdOut().writer().print("Answer 2: {}\n", .{answer2});
+    try stdout.print("Answer 2: {}\n", .{answer2});
 }
 
 fn findAnswer1(input: []const u8, sum: u32) !u32 {
