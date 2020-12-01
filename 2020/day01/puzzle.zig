@@ -70,12 +70,21 @@ fn findAnswer2(input: []const u8) !u32 {
     return error.AnswerNotFound;
 }
 
+const test_input =
+    \\1721
+    \\979
+    \\366
+    \\299
+    \\675
+    \\1456
+;
+
 test "findAnswer1" {
-    const answer1 = try findAnswer1(@embedFile("input.txt"));
-    std.testing.expectEqual(@as(u32, 1007331), answer1);
+    std.testing.expectEqual(@as(u32, 514579), try findAnswer1(test_input));
+    std.testing.expectEqual(@as(u32, 1007331), try findAnswer1(@embedFile("input.txt")));
 }
 
 test "findAnswer2" {
-    const answer2 = try findAnswer2(@embedFile("input.txt"));
-    std.testing.expectEqual(@as(u32, 48914340), answer2);
+    std.testing.expectEqual(@as(u32, 241861950), try findAnswer2(test_input));
+    std.testing.expectEqual(@as(u32, 48914340), try findAnswer2(@embedFile("input.txt")));
 }
