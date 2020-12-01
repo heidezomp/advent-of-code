@@ -69,3 +69,13 @@ fn findAnswer2(input: []const u8, sum: u32) !u32 {
     }
     return error.AnswerNotFound;
 }
+
+test "findAnswer1" {
+    const answer1 = try findAnswer1(@embedFile("input.txt"), 2020);
+    std.testing.expectEqual(answer1, 1007331);
+}
+
+test "findAnswer2" {
+    const answer2 = try findAnswer2(@embedFile("input.txt"), 2020);
+    std.testing.expectEqual(answer2, 48914340);
+}
