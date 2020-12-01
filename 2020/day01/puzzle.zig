@@ -26,16 +26,16 @@ fn mainArgs(gpa: *Allocator, arena: *Allocator, args: []const []const u8) !void 
     const input = try std.fs.cwd().readFileAlloc(arena, args[1], 1024 * 1024);
     const stdout = std.io.getStdOut().writer();
 
-    const sum_to_find = 2020;
-
-    const answer1 = try findAnswer1(input, sum_to_find);
+    const answer1 = try findAnswer1(input);
     try stdout.print("Answer 1: {}\n", .{answer1});
 
-    const answer2 = try findAnswer2(input, sum_to_find);
+    const answer2 = try findAnswer2(input);
     try stdout.print("Answer 2: {}\n", .{answer2});
 }
 
-fn findAnswer1(input: []const u8, sum: u32) !u32 {
+const target_sum = 2020;
+
+fn findAnswer1(input: []const u8) !u32 {
     var lines = std.mem.tokenize(input, "\n");
     while (lines.next()) |line1| {
         const number1 = try std.fmt.parseUnsigned(u32, line1, 10);
@@ -43,14 +43,14 @@ fn findAnswer1(input: []const u8, sum: u32) !u32 {
         var remaining_lines = std.mem.tokenize(lines.rest(), "\n");
         while (remaining_lines.next()) |line2| {
             const number2 = try std.fmt.parseUnsigned(u32, line2, 10);
-            if (number1 + number2 == sum)
+            if (number1 + number2 == target_sum)
                 return number1 * number2;
         }
     }
     return error.AnswerNotFound;
 }
 
-fn findAnswer2(input: []const u8, sum: u32) !u32 {
+fn findAnswer2(input: []const u8) !u32 {
     var lines = std.mem.tokenize(input, "\n");
     while (lines.next()) |line1| {
         const number1 = try std.fmt.parseUnsigned(u32, line1, 10);
@@ -62,7 +62,7 @@ fn findAnswer2(input: []const u8, sum: u32) !u32 {
             var further_remaining_lines = std.mem.tokenize(remaining_lines.rest(), "\n");
             while (further_remaining_lines.next()) |line3| {
                 const number3 = try std.fmt.parseUnsigned(u32, line3, 10);
-                if (number1 + number2 + number3 == sum)
+                if (number1 + number2 + number3 == target_sum)
                     return number1 * number2 * number3;
             }
         }
@@ -71,11 +71,11 @@ fn findAnswer2(input: []const u8, sum: u32) !u32 {
 }
 
 test "findAnswer1" {
-    const answer1 = try findAnswer1(@embedFile("input.txt"), 2020);
+    const answer1 = try findAnswer1(@embedFile("input.txt"));
     std.testing.expectEqual(answer1, 1007331);
 }
 
 test "findAnswer2" {
-    const answer2 = try findAnswer2(@embedFile("input.txt"), 2020);
+    const answer2 = try findAnswer2(@embedFile("input.txt"));
     std.testing.expectEqual(answer2, 48914340);
 }
