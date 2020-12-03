@@ -35,5 +35,15 @@ pub fn build(b: *Builder) void {
             b.fmt("Run solution for 2020, day {}", .{day}),
         );
         run_step.dependOn(&run_cmd.step);
+
+        const test_cmd = b.addTest(b.fmt("2020/{}/puzzle.zig", .{day_str}));
+        test_cmd.setTarget(target);
+        test_cmd.setBuildMode(mode);
+
+        const test_step = b.step(
+            b.fmt("test-2020-{}", .{day_str}),
+            b.fmt("Run tests for 2020, day {}", .{day}),
+        );
+        test_step.dependOn(&test_cmd.step);
     }
 }
