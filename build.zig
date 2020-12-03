@@ -13,6 +13,8 @@ pub fn build(b: *Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
+    const test_all_step = b.step("test", "Run all tests");
+
     var day: u8 = 1;
     while (day <= days_implemented) : (day += 1) {
         const day_str = b.fmt("day{d:0>2}", .{day});
@@ -41,6 +43,8 @@ pub fn build(b: *Builder) void {
         test_cmd.setTarget(target);
         test_cmd.setBuildMode(mode);
         test_cmd.single_threaded = true;
+
+        test_all_step.dependOn(&test_cmd.step);
 
         const test_step = b.step(
             b.fmt("test-2020-{}", .{day_str}),
