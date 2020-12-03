@@ -22,6 +22,7 @@ pub fn build(b: *Builder) void {
         );
         exe.setTarget(target);
         exe.setBuildMode(mode);
+        exe.single_threaded = true;
         exe.install();
 
         const run_cmd = exe.run();
@@ -39,6 +40,7 @@ pub fn build(b: *Builder) void {
         const test_cmd = b.addTest(b.fmt("2020/{}/puzzle.zig", .{day_str}));
         test_cmd.setTarget(target);
         test_cmd.setBuildMode(mode);
+        test_cmd.single_threaded = true;
 
         const test_step = b.step(
             b.fmt("test-2020-{}", .{day_str}),
