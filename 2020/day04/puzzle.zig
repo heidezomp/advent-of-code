@@ -1,36 +1,38 @@
 const std = @import("std");
-const Allocator = std.mem.Allocator;
 
-var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
-
-pub fn main() anyerror!void {
-    const gpa = if (std.builtin.link_libc) std.heap.raw_c_allocator else &general_purpose_allocator.allocator;
-    defer if (!std.builtin.link_libc) {
-        _ = general_purpose_allocator.deinit();
-    };
-    var arena_instance = std.heap.ArenaAllocator.init(gpa);
-    defer arena_instance.deinit();
-    const arena = &arena_instance.allocator;
-
-    const args = try std.process.argsAlloc(arena);
-    return mainArgs(gpa, arena, args);
+pub fn findAnswer1(input: []const u8) !u32 {
+    return validatePasswords(input, .lax);
 }
 
-fn mainArgs(gpa: *Allocator, arena: *Allocator, args: []const []const u8) !void {
-    if (args.len != 2) {
-        std.log.err("Incorrect number of arguments", .{});
-        std.log.info("Usage: {} <input_file>", .{args[0]});
-        std.process.exit(1);
+pub fn findAnswer2(input: []const u8) !u32 {
+    return validatePasswords(input, .strict);
+}
+
+fn validatePasswords(input: []const u8, method: enum { lax, strict }) !u32 {
+    var valid_passports: u32 = 0;
+    var passport: Passport = .{};
+
+    var lines = std.mem.split(input, "\n");
+    while (lines.next()) |line| {
+        if (line.len == 0) {
+            if (passport.isValid())
+                valid_passports += 1;
+            passport = .{};
+            continue;
+        }
+
+        var fields = std.mem.tokenize(line, " ");
+        while (fields.next()) |field| {
+            switch (method) {
+                .lax => try passport.parseFieldLax(field),
+                .strict => try passport.parseFieldStrict(field),
+            }
+        }
     }
+    if (passport.isValid())
+        valid_passports += 1;
 
-    const input = try std.fs.cwd().readFileAlloc(arena, args[1], 1024 * 1024);
-    const stdout = std.io.getStdOut().writer();
-
-    const answer1 = try findAnswer1(input);
-    try stdout.print("Answer 1: {}\n", .{answer1});
-
-    const answer2 = try findAnswer2(input);
-    try stdout.print("Answer 2: {}\n", .{answer2});
+    return valid_passports;
 }
 
 const Passport = struct {
@@ -113,41 +115,6 @@ const Passport = struct {
             self.hcl and self.ecl and self.pid;
     }
 };
-
-fn validatePasswords(input: []const u8, method: enum { lax, strict }) !u32 {
-    var valid_passports: u32 = 0;
-    var passport: Passport = .{};
-
-    var lines = std.mem.split(input, "\n");
-    while (lines.next()) |line| {
-        if (line.len == 0) {
-            if (passport.isValid())
-                valid_passports += 1;
-            passport = .{};
-            continue;
-        }
-
-        var fields = std.mem.tokenize(line, " ");
-        while (fields.next()) |field| {
-            switch (method) {
-                .lax => try passport.parseFieldLax(field),
-                .strict => try passport.parseFieldStrict(field),
-            }
-        }
-    }
-    if (passport.isValid())
-        valid_passports += 1;
-
-    return valid_passports;
-}
-
-fn findAnswer1(input: []const u8) !u32 {
-    return validatePasswords(input, .lax);
-}
-
-fn findAnswer2(input: []const u8) !u32 {
-    return validatePasswords(input, .strict);
-}
 
 const test_input =
     \\ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
