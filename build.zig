@@ -1,6 +1,5 @@
-const Builder = @import("std").build.Builder;
-
-const days_implemented = 5;
+const std = @import("std");
+const Builder = std.build.Builder;
 
 pub fn build(b: *Builder) void {
     // Standard target options allows the person running `zig build` to choose
@@ -16,8 +15,12 @@ pub fn build(b: *Builder) void {
     const test_all_step = b.step("test", "Run all tests");
 
     var day: u8 = 1;
-    while (day <= days_implemented) : (day += 1) {
+    while (day <= 25) : (day += 1) {
         const day_str = b.fmt("day{d:0>2}", .{day});
+
+        // Skip this day if its puzzle file doesn't exist yet.
+        std.fs.accessAbsolute(b.fmt("{}/2020/{}/puzzle.zig", .{ b.build_root, day_str }), .{}) catch continue;
+
         const exe = b.addExecutable(b.fmt("advent-of-code-2020-{}", .{day_str}), "2020/main.zig");
         exe.addBuildOption([]const u8, "puzzle_file", b.fmt("{}/puzzle.zig", .{day_str}));
         exe.setTarget(target);
