@@ -1,6 +1,6 @@
 const Builder = @import("std").build.Builder;
 
-const days_implemented = 4;
+const days_implemented = 5;
 
 pub fn build(b: *Builder) void {
     // Standard target options allows the person running `zig build` to choose
