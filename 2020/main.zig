@@ -28,9 +28,17 @@ pub fn main() anyerror!void {
     const input = try std.fs.cwd().readFileAlloc(arena, args[1], 1024 * 1024);
     const stdout = std.io.getStdOut().writer();
 
-    const answer1 = try puzzle.findAnswer1(input);
+    const answer1 = switch (@typeInfo(@TypeOf(puzzle.findAnswer1)).Fn.args.len) {
+        1 => try puzzle.findAnswer1(input),
+        2 => try puzzle.findAnswer1(arena, input),
+        else => @compileError("findAnswer1: incorrect number of arguments"),
+    };
     try stdout.print("Answer 1: {}\n", .{answer1});
 
-    const answer2 = try puzzle.findAnswer2(input);
+    const answer2 = switch (@typeInfo(@TypeOf(puzzle.findAnswer2)).Fn.args.len) {
+        1 => try puzzle.findAnswer2(input),
+        2 => try puzzle.findAnswer2(arena, input),
+        else => @compileError("findAnswer2: incorrect number of arguments"),
+    };
     try stdout.print("Answer 2: {}\n", .{answer2});
 }

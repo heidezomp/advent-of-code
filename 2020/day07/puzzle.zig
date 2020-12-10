@@ -1,4 +1,5 @@
 const std = @import("std");
+const Allocator = std.mem.Allocator;
 
 const BagName = struct {
     adjective: []const u8,
@@ -14,7 +15,9 @@ const BagName = struct {
     }
 };
 
-pub fn findAnswer1(input: []const u8) !u32 {
+pub fn findAnswer1(arena: *Allocator, input: []const u8) !u32 {
+    const is_contained_within = std.AutoHashMap(BagName, std.AutoHashMap(BagName, void)).init(arena);
+
     var lines = std.mem.tokenize(input, "\n");
     while (lines.next()) |line| {
         std.log.debug("[{}]:", .{line});
