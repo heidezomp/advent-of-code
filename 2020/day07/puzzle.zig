@@ -16,6 +16,7 @@ const BagName = struct {
 };
 
 pub fn findAnswer1(arena: *Allocator, input: []const u8) !u32 {
+    // TODO This probably won't hash or compare BagNames correctly?
     const is_contained_within = std.AutoHashMap(BagName, std.AutoHashMap(BagName, void)).init(arena);
 
     var lines = std.mem.tokenize(input, "\n");
