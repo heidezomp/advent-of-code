@@ -17,11 +17,18 @@ const BagName = struct {
 pub fn findAnswer1(input: []const u8) !u32 {
     var lines = std.mem.tokenize(input, "\n");
     while (lines.next()) |line| {
+        std.log.debug("[{}]:", .{line});
+
         var words = std.mem.tokenize(line, " ");
         const bag_name = BagName.parse(&words);
+        std.log.debug("outer: {}", .{bag_name});
         _ = words.next(); // "bags"
         _ = words.next(); // "contain"
-        std.log.debug("{} ({})", .{ bag_name, line });
+        while (words.next()) |amount_str| {
+            const inner_bag_name = BagName.parse(&words);
+            std.log.debug("inner: {}", .{inner_bag_name});
+            _ = words.next(); // "bags"
+        }
     }
     return error.Unimplemented;
 }
