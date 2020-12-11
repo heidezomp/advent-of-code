@@ -70,7 +70,46 @@ pub fn findAnswer1(arena: *Allocator, input: []const u8) !u32 {
     return answer_set.count();
 }
 
-pub fn findAnswer2(input: []const u8) !u32 {
+fn constructContainsAmount(arena: *Allocator, input: []const u8) !std.StringHashMap(std.StringHashMap(u32)) {
+    // Hash map from bag name to hash map from bag name to amount of bags
+    var contains_amount = std.StringHashMap(std.StringHashMap(u32)).init(arena);
+
+    // Fill the hash map by parsing the input
+    var lines = std.mem.tokenize(input, "\n");
+    while (lines.next()) |line| {
+        std.log.debug("[{}]:", .{line});
+
+        var words = std.mem.tokenize(line, " ");
+        const bag_name = try parseBagName(&words);
+        std.log.debug("outer: {}", .{bag_name});
+        _ = words.next(); // "bags"
+        _ = words.next(); // "contain"
+
+        var result = try contains_amount.getOrPut(bag_name);
+        if (!result.found_existing) {
+            result.entry.value = std.StringHashMap(u32).init(arena);
+        }
+
+        while (words.next()) |amount_str| {
+            if (std.mem.eql(u8, amount_str, "no")) // "no other bags"
+                break;
+
+            const amount = try std.fmt.parseUnsigned(u32, amount_str, 10);
+            const inner_bag_name = try parseBagName(&words);
+            std.log.debug("inner: {} {}", .{ amount, inner_bag_name });
+            _ = words.next(); // "bags"
+
+            // Insert in hash map
+            try result.entry.value.putNoClobber(inner_bag_name, amount);
+        }
+    }
+
+    return contains_amount;
+}
+
+pub fn findAnswer2(arena: *Allocator, input: []const u8) !u32 {
+    const contains_amount = try constructContainsAmount(arena, input);
+
     return error.Unimplemented;
 }
 
