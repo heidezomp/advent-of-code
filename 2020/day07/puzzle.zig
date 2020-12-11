@@ -24,6 +24,9 @@ fn constructIsContainedWithin(arena: *Allocator, input: []const u8) !std.StringH
         _ = words.next(); // "bags"
         _ = words.next(); // "contain"
         while (words.next()) |amount_str| {
+            if (std.mem.eql(u8, amount_str, "no")) // "no other bags"
+                break;
+
             const inner_bag_name = try parseBagName(&words);
             std.log.debug("inner: {}", .{inner_bag_name});
             _ = words.next(); // "bags"
@@ -69,4 +72,11 @@ pub fn findAnswer1(arena: *Allocator, input: []const u8) !u32 {
 
 pub fn findAnswer2(input: []const u8) !u32 {
     return error.Unimplemented;
+}
+
+test "findAnswer1" {
+    var arena_instance = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_instance.deinit();
+    const arena = &arena_instance.allocator;
+    std.testing.expectEqual(@as(u32, 179), try findAnswer1(arena, @embedFile("input.txt")));
 }
