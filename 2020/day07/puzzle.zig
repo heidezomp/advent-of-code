@@ -107,10 +107,26 @@ fn constructContainsAmount(arena: *Allocator, input: []const u8) !std.StringHash
     return contains_amount;
 }
 
+fn containsAmountRecursive(
+    contains_amount: std.StringHashMap(std.StringHashMap(u32)),
+    bag_name: []const u8,
+) u32 {
+    std.log.debug("recursing for {}", .{bag_name});
+    var sum: u32 = 0;
+    const bag_map = contains_amount.get(bag_name) orelse unreachable;
+    var iter = bag_map.iterator();
+    while (iter.next()) |bag_entry| {
+        std.log.debug("recursing into {} {} bags", .{ bag_entry.value, bag_entry.key });
+        std.log.debug("sum before: {}", .{sum});
+        sum += bag_entry.value * (containsAmountRecursive(contains_amount, bag_entry.key) + 1);
+        std.log.debug("sum after: {}", .{sum});
+    }
+    return sum;
+}
+
 pub fn findAnswer2(arena: *Allocator, input: []const u8) !u32 {
     const contains_amount = try constructContainsAmount(arena, input);
-
-    return error.Unimplemented;
+    return containsAmountRecursive(contains_amount, "shiny gold");
 }
 
 test "findAnswer1" {
@@ -118,4 +134,11 @@ test "findAnswer1" {
     defer arena_instance.deinit();
     const arena = &arena_instance.allocator;
     std.testing.expectEqual(@as(u32, 179), try findAnswer1(arena, @embedFile("input.txt")));
+}
+
+test "findAnswer2" {
+    var arena_instance = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_instance.deinit();
+    const arena = &arena_instance.allocator;
+    std.testing.expectEqual(@as(u32, 18925), try findAnswer2(arena, @embedFile("input.txt")));
 }
