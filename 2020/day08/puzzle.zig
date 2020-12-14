@@ -9,8 +9,8 @@ const Instruction = struct {
     executed: bool = false,
 };
 
-pub fn findAnswer1(arena: *Allocator, input: []const u8) !i32 {
-    // Parse instructions
+/// Parse input into list of instructions
+fn parse(arena: *Allocator, input: []const u8) !std.ArrayList(Instruction) {
     var instr_list = std.ArrayList(Instruction).init(arena);
     var lines = std.mem.tokenize(input, "\n");
     while (lines.next()) |line| {
@@ -26,13 +26,26 @@ pub fn findAnswer1(arena: *Allocator, input: []const u8) !i32 {
         const arg = try std.fmt.parseInt(i32, line[4..], 10);
         try instr_list.append(.{ .op = op, .arg = arg });
     }
+    return instr_list;
+}
 
-    // Execute instructions
-    const instr = instr_list.items;
+const ExecResult = struct {
+    acc: i32,
+    status: enum { loop, term },
+};
+
+/// Execute instructions until the program loops or terminates
+fn exec(instr: []Instruction) ExecResult {
+    // Set all instructions to be not executed yet
+    for (instr) |*instruction| instruction.executed = false;
+
     var pc: u32 = 0;
     var acc: i32 = 0;
-    while (!instr[pc].executed) {
+    while (true) {
+        if (pc >= instr.len) return .{ .acc = acc, .status = .term };
+        if (instr[pc].executed) return .{ .acc = acc, .status = .loop };
         instr[pc].executed = true;
+
         switch (instr[pc].op) {
             .acc => {
                 acc += instr[pc].arg;
@@ -46,8 +59,13 @@ pub fn findAnswer1(arena: *Allocator, input: []const u8) !i32 {
             },
         }
     }
+}
 
-    return acc;
+pub fn findAnswer1(arena: *Allocator, input: []const u8) !i32 {
+    const instr_list = try parse(arena, input);
+    const result = exec(instr_list.items);
+    std.debug.assert(result.status == .loop);
+    return result.acc;
 }
 
 pub fn findAnswer2(input: []const u8) !i32 {
