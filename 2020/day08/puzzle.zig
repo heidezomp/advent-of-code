@@ -9,7 +9,7 @@ const Instruction = struct {
     executed: bool = false,
 };
 
-/// Parse input into list of instructions
+/// Parse input into list of instructions.
 fn parse(arena: *Allocator, input: []const u8) !std.ArrayList(Instruction) {
     var instr_list = std.ArrayList(Instruction).init(arena);
     var lines = std.mem.tokenize(input, "\n");
@@ -34,7 +34,7 @@ const ExecResult = struct {
     status: enum { loop, term },
 };
 
-/// Execute instructions until the program loops or terminates
+/// Execute instructions until the program loops or terminates.
 fn exec(instr: []Instruction) ExecResult {
     // Set all instructions to be not executed yet
     for (instr) |*instruction| instruction.executed = false;
@@ -68,8 +68,28 @@ pub fn findAnswer1(arena: *Allocator, input: []const u8) !i32 {
     return result.acc;
 }
 
-pub fn findAnswer2(input: []const u8) !i32 {
-    return error.Unimplemented;
+pub fn findAnswer2(arena: *Allocator, input: []const u8) !i32 {
+    const instr_list = try parse(arena, input);
+    for (instr_list.items) |*instruction| {
+        const orig_op = instruction.op;
+        instruction.op = switch (instruction.op) {
+            .nop => .jmp,
+            .jmp => .nop,
+            else => continue,
+        };
+
+        const result = exec(instr_list.items);
+        if (result.status == .term) {
+            // We got the program to terminate; return the accumulator.
+            return result.acc;
+        }
+
+        // Put this instruction back the way it was; it isn't the culprit.
+        instruction.op = orig_op;
+    }
+
+    // If we get here, none of the instructions were the culprit, so the input is wrong.
+    return error.InstructionsExhausted;
 }
 
 const test_input =
@@ -90,4 +110,12 @@ test "findAnswer1" {
     const arena = &arena_instance.allocator;
     std.testing.expectEqual(@as(i32, 5), try findAnswer1(arena, test_input));
     std.testing.expectEqual(@as(i32, 1753), try findAnswer1(arena, @embedFile("input.txt")));
+}
+
+test "findAnswer2" {
+    var arena_instance = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_instance.deinit();
+    const arena = &arena_instance.allocator;
+    std.testing.expectEqual(@as(i32, 8), try findAnswer2(arena, test_input));
+    std.testing.expectEqual(@as(i32, 733), try findAnswer2(arena, @embedFile("input.txt")));
 }
