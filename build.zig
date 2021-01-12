@@ -19,10 +19,10 @@ pub fn build(b: *Builder) void {
         const day_str = b.fmt("day{d:0>2}", .{day});
 
         // Skip this day if its puzzle file doesn't exist yet.
-        std.fs.accessAbsolute(b.fmt("{}/2020/{}/puzzle.zig", .{ b.build_root, day_str }), .{}) catch continue;
+        std.fs.accessAbsolute(b.fmt("{s}/2020/{s}/puzzle.zig", .{ b.build_root, day_str }), .{}) catch continue;
 
-        const exe = b.addExecutable(b.fmt("advent-of-code-2020-{}", .{day_str}), "2020/main.zig");
-        exe.addBuildOption([]const u8, "puzzle_file", b.fmt("{}/puzzle.zig", .{day_str}));
+        const exe = b.addExecutable(b.fmt("advent-of-code-2020-{s}", .{day_str}), "2020/main.zig");
+        exe.addBuildOption([]const u8, "puzzle_file", b.fmt("{s}/puzzle.zig", .{day_str}));
         exe.setTarget(target);
         exe.setBuildMode(mode);
         exe.single_threaded = true;
@@ -35,12 +35,12 @@ pub fn build(b: *Builder) void {
         }
 
         const run_step = b.step(
-            b.fmt("run-2020-{}", .{day_str}),
+            b.fmt("run-2020-{s}", .{day_str}),
             b.fmt("Run solution for 2020, day {}", .{day}),
         );
         run_step.dependOn(&run_cmd.step);
 
-        const test_cmd = b.addTest(b.fmt("2020/{}/puzzle.zig", .{day_str}));
+        const test_cmd = b.addTest(b.fmt("2020/{s}/puzzle.zig", .{day_str}));
         test_cmd.setTarget(target);
         test_cmd.setBuildMode(mode);
         test_cmd.single_threaded = true;
@@ -48,7 +48,7 @@ pub fn build(b: *Builder) void {
         test_all_step.dependOn(&test_cmd.step);
 
         const test_step = b.step(
-            b.fmt("test-2020-{}", .{day_str}),
+            b.fmt("test-2020-{s}", .{day_str}),
             b.fmt("Run tests for 2020, day {}", .{day}),
         );
         test_step.dependOn(&test_cmd.step);
